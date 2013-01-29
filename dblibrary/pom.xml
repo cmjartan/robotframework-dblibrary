@@ -87,7 +87,7 @@
 							<mainClass>org/robot/database/server/RemoteServer</mainClass>
 						</manifest>
 					</archive>
-					<finalName>dblibrary-2.0-server</finalName>
+					<finalName>dblibrary-server-${project.version}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
 				</configuration>
 				<executions>
