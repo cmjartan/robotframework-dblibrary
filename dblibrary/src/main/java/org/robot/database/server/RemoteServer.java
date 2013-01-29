@@ -2,15 +2,17 @@ package org.robot.database.server;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import redstone.xmlrpc.simple.*;
+
+import org.apache.xmlrpc.webserver.WebServer;
+import org.robotframework.remoteserver.xmlrpc.ReflectiveHandlerMapping;
 
 public class RemoteServer {
 
-	public static final int DEFAULT_PORT = 8270; 
+	public static final int DEFAULT_PORT = 8270;
 
 	public static final String MESSAGE = "Database Library v2.0 remote server started";
-	
-	private static Server server;
+
+	private static WebServer server;
 
 	/**
 	 * Remote Server main/startup method. Takes input from command line for Java
@@ -21,15 +23,17 @@ public class RemoteServer {
 	 */
 	public static void main(String[] args) {
 
-		// Setting port and 
+		// Setting port and
 		int port = DEFAULT_PORT;
 
 		// Parse command line arguments
 		for (int i = 0; i < args.length; i++) {
-			if (args[i].equalsIgnoreCase("--port") || args[i].equalsIgnoreCase("-p")) {
+			if (args[i].equalsIgnoreCase("--port")
+					|| args[i].equalsIgnoreCase("-p")) {
 				port = Integer.parseInt(args[i + 1]);
 			}
-			if (args[i].equalsIgnoreCase("--help") || args[i].equalsIgnoreCase("-h")) {
+			if (args[i].equalsIgnoreCase("--help")
+					|| args[i].equalsIgnoreCase("-h")) {
 				displayUsage();
 				System.exit(0);
 			}
@@ -37,15 +41,20 @@ public class RemoteServer {
 
 		// The actual XML-RPC stuff
 		try {
-			server = new Server(port);
-			server.getXmlRpcServer().addInvocationHandler(null,	new RemoteServerMethods());
+			server = new WebServer(port);
+			ReflectiveHandlerMapping mapping = new ReflectiveHandlerMapping();
+			mapping.addHandler(null, RemoteServerMethods.class);
+			server.getXmlRpcServer().setHandlerMapping(mapping);
 			server.start();
 
-			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm");
-			System.out.println(MESSAGE + " on port " + port + " at " + dateFormat.format(new Date()));
+			SimpleDateFormat dateFormat = new SimpleDateFormat(
+					"MM/dd/yyyy hh:mm");
+			System.out.println(MESSAGE + " on port " + port + " at "
+					+ dateFormat.format(new Date()));
 		} catch (Exception e) {
-			System.out.println("An exception occured when starting the server.\n\n"
-					+ "Stacktrace:\n\n");
+			System.out
+					.println("An exception occured when starting the server.\n\n"
+							+ "Stacktrace:\n\n");
 			e.printStackTrace();
 		}
 	}
@@ -53,10 +62,13 @@ public class RemoteServer {
 	private static void displayUsage() {
 		System.out.println("\n" + MESSAGE + "\n");
 		System.out.println("Usage Info:\n");
-		System.out.println("Ensure that the dblibrary-2.0-server.jar JAR and your JDBC driver JAR is in the classpath, e.g.:\n");
-		System.out.println("set CLASSPATH=%CLASSPATH%;./dblibrary-2.0-server.jar;./mysql-connector-java-5.1.6.jar\n\n");
+		System.out
+				.println("Ensure that the dblibrary-2.0-server.jar JAR and your JDBC driver JAR is in the classpath, e.g.:\n");
+		System.out
+				.println("set CLASSPATH=%CLASSPATH%;./dblibrary-2.0-server.jar;./mysql-connector-java-5.1.6.jar\n\n");
 		System.out.println("The start the server as follows:\n");
-		System.out.println("java org.robot.database.server.RemoteServer --port <port> --help");
+		System.out
+				.println("java org.robot.database.server.RemoteServer --port <port> --help");
 		System.out.println("");
 	}
 }

@@ -18,10 +18,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.robotframework.javalib.annotation.ArgumentNames;
-import org.robotframework.javalib.annotation.RobotKeyword;
-import org.robotframework.javalib.annotation.RobotKeywords;
-
 /**
  * This library supports database-related testing using the Robot Framework. It
  * allows to establish a connection to a certain database to perform tests on
@@ -38,36 +34,35 @@ import org.robotframework.javalib.annotation.RobotKeywords;
  * (usually in the form of a JAR from the database provider) and the knowledge
  * of a proper JDBC connection-string.
  * 
- * The following table lists some examples of drivers and connection strings
- * for some popular databases. 
- * | *Database* | *Driver Name* | *Sample Connection String* | *Download Driver* |
- * | MySql | com.mysql.jdbc.Driver | jdbc:mysql://servername/dbname | http://dev.mysql.com/downloads/connector/j/ |
- * | Oracle | oracle.jdbc.driver.OracleDriver | jdbc:oracle:thin:@servername:port:dbname | http://www.oracle.com/technology/tech/java/sqlj_jdbc/htdocs/jdbc_faq.html |
+ * The following table lists some examples of drivers and connection strings for
+ * some popular databases. | *Database* | *Driver Name* | *Sample Connection
+ * String* | *Download Driver* | | MySql | com.mysql.jdbc.Driver |
+ * jdbc:mysql://servername/dbname | http://dev.mysql.com/downloads/connector/j/
+ * | | Oracle | oracle.jdbc.driver.OracleDriver |
+ * jdbc:oracle:thin:@servername:port:dbname |
+ * http://www.oracle.com/technology/tech/java/sqlj_jdbc/htdocs/jdbc_faq.html |
  * 
  * The examples in the description of the keywords is based on a database table
  * named "MySampleTable" that has the following layout:
  * 
- * MySampleTable: 
- * | *COLUMN* | *TYPE* |
- * | Id | Number |
- * | Name | String | 
- * | EMail | String |
- * | Postings | Number | 
- * | State | Number | 
- * | LastPosting | Timestamp |
+ * MySampleTable: | *COLUMN* | *TYPE* | | Id | Number | | Name | String | |
+ * EMail | String | | Postings | Number | | State | Number | | LastPosting |
+ * Timestamp |
  * 
  * NOTE: A lot of keywords that are targeted for Tables will work equally with
  * Views as this is often no difference if Select-statements are performed.
  * 
- * *Remote Library Support*
- * Sine release v2.0 Database Library supports the Remote Server Interface of the Robot Framework.
- * This means you can start the Library as an own Server and use the provided keywords remotely.
- * Especially for libraries written in Java (like this one) this has the big advantage that you 
- * can still use pybot to start the Robot Framework (no Jython required) and still use these keywords
- * provided as a Java Library.
+ * *Remote Library Support* Sine release v2.0 Database Library supports the
+ * Remote Server Interface of the Robot Framework. This means you can start the
+ * Library as an own Server and use the provided keywords remotely. Especially
+ * for libraries written in Java (like this one) this has the big advantage that
+ * you can still use pybot to start the Robot Framework (no Jython required) and
+ * still use these keywords provided as a Java Library.
  * 
- * Please take a look at the sample project here (https://github.com/ThomasJaspers/robotframework-dblibrary/wiki/Database-Library-Sample) 
- * to see how the Remote Server functionality can be utilized in your testsuites.
+ * Please take a look at the sample project here
+ * (https://github.com/ThomasJaspers
+ * /robotframework-dblibrary/wiki/Database-Library-Sample) to see how the Remote
+ * Server functionality can be utilized in your testsuites.
  * 
  */
 public class DatabaseLibrary {
@@ -78,72 +73,91 @@ public class DatabaseLibrary {
 	public static final Map<String, String> documentation;
 
 	static {
-        Map<String, String> map = new HashMap<String, String>();
-        
-        map.put("connect_to_database", "Connects to the database defined by the given arguments.\n\n"
-    			+ "Example:\n"
-    			+ "| Connect To Database | com.mysql.jdbc.Driver | jdbc:mysql://my.host.name/myinstance | UserName | ThePassword |\n");
-        map.put("disconnect_from_database", "Disconnects from the database.\n\n" + "Example:\n"
-        		+ "| Disconnect from Database |\n");
-        map.put("table_must_exist", "Checks that the given table exists.\n\n" + "Example:\n"
-    			+ "| Table Must Exist | MySampleTable |\n"); 
-        map.put("table_must_be_empty", "Checks that the given table is empty.\n\n" + "Example:\n"
-    			+ "| Table Must Be Empty | MySampleTable |\n"); 
-        map.put("delete_all_rows_from_table", "Deletes all rows from the given table.\n\n" + "Example:\n"
-			+ "| Delete All Rows From Table | MySampleTable |\n");
-        map.put("table_must_contain_number_of_rows", "Checks that the given table contains the given number of records.\n\n"
-    			+ "Example:\n"
-    			+ "| Table Must Contain Number Of Rows | MySampleTable | 14 |\n"); 
-        map.put("table_must_contain_more_than_number_of_rows", "Checks that the given table contains more than the given number of records.\n\n"
-    			+ "Example:\n"
-    			+ "| Table Must Contain More Than Number Of Rows | MySampleTable | 99 |\n"); 
-        map.put("table_must_contain_less_than_number_of_rows", "Checks that the given table contains less than the given number of records.\n\n"
-    			+ "Example:\n"
-    			+ "| Table Must Contain Less Than Number Of Rows | MySampleTable | 99 |\n");
-        map.put("tables_must_contain_same_amount_of_rows", "Checks that the given tables contain the same amount of rows.\n\n"
-        		+ "Example:\n" 
-        		+ "| Tables Must Contain Same Amount Of Rows | MySampleTable | MyCompareTable |\n");
-        map.put("check_content_for_row_identified_by_rownum", "Checks for a given value in the selected row.\n\n"
-        		+ "Example:\n" 
-        		+ "| Check Content for Row Identified by Rownum | Name,EMail | John Doe|john.doe@x-files | MySampleTable | 4 |\n");
-        map.put("check_content_for_row_identified_by_where_clause", "Checks for a given value in the selected row.\n\n"
-        		+ "Example:\n" 
-        		+ "| Check Content for Row Identified by WhereClause | Name,EMail | John Doe|john.doe@x-files | MySampleTable | Postings=14 |\n"); 
-        map.put("read_single_value_from_table", "Reads and returns the defined value from the given table.\n\n"
-        		+ "Example:\n" 
-        		+ "| ${VALUE}= | Read single Value from Table | MySampleTable | EMail | Name='John Doe' |\n");
-        map.put("transaction_isolation_level_must_be", "Checks that the given transaction level is set.\n\n"
-        		+ "Example:"
-        		+ "| Transaction Isolation Level Must Be | TRANSACTION_READ_COMMITTED |\n");
-        map.put("get_transaction_isolation_level", "Returns the transaction level set.\n\n"
-        		+ "Example:\n"
-        		+ "| ${TI_LEVEL}= | Get Transaction Isolation Level |\n");
-        map.put("check_primary_key_columns_for_table", "Checks for the expected primary key.\n\n"
-        		+ "Example:\n" 
-        		+ "| Check Primary Key Columns For Table | MySampleTable | Id,Name |\n");
-    	map.put("get_primary_key_columns_for_table", "Returns the primary key column names for the given table.\n\n"
-    			+ "Example:\n" 
-    			+ "| ${KEYS}= | Get Primary Key Columns For Table | MySampleTable |\n");
-    	map.put("execute_sql", "Executes the given SQL statement.\n\n"
-    			+ "Example:\n" 
-    			+ "| Execute SQL | CREATE TABLE MyTable (Num INTEGER) |\n");
-    	map.put("execute_sql_from_file", "Executes the SQL statements from the given file.\n\n"
-    			+ "Example:" 
-    			+ "| Execute SQL from File | myFile.sql |\n");
-    	map.put("execute_sql_from_file_ignore_errors", "Executes the SQL statements from the given file not stopping on errors.\n\n"
-    			+ "Example:" 
-    			+ "| Execute SQL from File | myFile.sql |\n");
-    	map.put("verify_number_of_rows_matching_where", "Checks that a given table contains a given amount of rows matching a given WHERE clause.\n\n"
-    			+ "Example:" 
-    			+ "| Verify Number Of Rows Matching Where | MySampleTable | email=x@y.net | 2 |\n\n");
-    	map.put("row_should_not_exist_in_table", "Checks that the row defined by the where-clause does not exist in the given table.\n\n" 
-    			+ "Example:\n"
-    			+ "| Row Should Not Exist In Table | MySampleTable | Name='John Doe' |\n\n");
-        
-        documentation = Collections.unmodifiableMap(map);
-    }
+		Map<String, String> map = new HashMap<String, String>();
 
-	
+		map.put("connect_to_database",
+				"Connects to the database defined by the given arguments.\n\n"
+						+ "Example:\n"
+						+ "| Connect To Database | com.mysql.jdbc.Driver | jdbc:mysql://my.host.name/myinstance | UserName | ThePassword |\n");
+		map.put("disconnect_from_database",
+				"Disconnects from the database.\n\n" + "Example:\n"
+						+ "| Disconnect from Database |\n");
+		map.put("table_must_exist", "Checks that the given table exists.\n\n"
+				+ "Example:\n"
+				+ "| Table Must Exist | MySampleTable |\n");
+		map.put("table_must_be_empty",
+				"Checks that the given table is empty.\n\n" + "Example:\n"
+						+ "| Table Must Be Empty | MySampleTable |\n");
+		map.put("delete_all_rows_from_table",
+				"Deletes all rows from the given table.\n\n" + "Example:\n"
+						+ "| Delete All Rows From Table | MySampleTable |\n");
+		map.put("table_must_contain_number_of_rows",
+				"Checks that the given table contains the given number of records.\n\n"
+						+ "Example:\n"
+						+ "| Table Must Contain Number Of Rows | MySampleTable | 14 |\n");
+		map.put("table_must_contain_more_than_number_of_rows",
+				"Checks that the given table contains more than the given number of records.\n\n"
+						+ "Example:\n"
+						+ "| Table Must Contain More Than Number Of Rows | MySampleTable | 99 |\n");
+		map.put("table_must_contain_less_than_number_of_rows",
+				"Checks that the given table contains less than the given number of records.\n\n"
+						+ "Example:\n"
+						+ "| Table Must Contain Less Than Number Of Rows | MySampleTable | 99 |\n");
+		map.put("tables_must_contain_same_amount_of_rows",
+				"Checks that the given tables contain the same amount of rows.\n\n"
+						+ "Example:\n"
+						+ "| Tables Must Contain Same Amount Of Rows | MySampleTable | MyCompareTable |\n");
+		map.put("check_content_for_row_identified_by_rownum",
+				"Checks for a given value in the selected row.\n\n"
+						+ "Example:\n"
+						+ "| Check Content for Row Identified by Rownum | Name,EMail | John Doe|john.doe@x-files | MySampleTable | 4 |\n");
+		map.put("check_content_for_row_identified_by_where_clause",
+				"Checks for a given value in the selected row.\n\n"
+						+ "Example:\n"
+						+ "| Check Content for Row Identified by WhereClause | Name,EMail | John Doe|john.doe@x-files | MySampleTable | Postings=14 |\n");
+		map.put("read_single_value_from_table",
+				"Reads and returns the defined value from the given table.\n\n"
+						+ "Example:\n"
+						+ "| ${VALUE}= | Read single Value from Table | MySampleTable | EMail | Name='John Doe' |\n");
+		map.put("transaction_isolation_level_must_be",
+				"Checks that the given transaction level is set.\n\n"
+						+ "Example:"
+						+ "| Transaction Isolation Level Must Be | TRANSACTION_READ_COMMITTED |\n");
+		map.put("get_transaction_isolation_level",
+				"Returns the transaction level set.\n\n"
+						+ "Example:\n"
+						+ "| ${TI_LEVEL}= | Get Transaction Isolation Level |\n");
+		map.put("check_primary_key_columns_for_table",
+				"Checks for the expected primary key.\n\n"
+						+ "Example:\n"
+						+ "| Check Primary Key Columns For Table | MySampleTable | Id,Name |\n");
+		map.put("get_primary_key_columns_for_table",
+				"Returns the primary key column names for the given table.\n\n"
+						+ "Example:\n"
+						+ "| ${KEYS}= | Get Primary Key Columns For Table | MySampleTable |\n");
+		map.put("execute_sql", "Executes the given SQL statement.\n\n"
+				+ "Example:\n"
+				+ "| Execute SQL | CREATE TABLE MyTable (Num INTEGER) |\n");
+		map.put("execute_sql_from_file",
+				"Executes the SQL statements from the given file.\n\n"
+						+ "Example:"
+						+ "| Execute SQL from File | myFile.sql |\n");
+		map.put("execute_sql_from_file_ignore_errors",
+				"Executes the SQL statements from the given file not stopping on errors.\n\n"
+						+ "Example:"
+						+ "| Execute SQL from File | myFile.sql |\n");
+		map.put("verify_number_of_rows_matching_where",
+				"Checks that a given table contains a given amount of rows matching a given WHERE clause.\n\n"
+						+ "Example:"
+						+ "| Verify Number Of Rows Matching Where | MySampleTable | email=x@y.net | 2 |\n\n");
+		map.put("row_should_not_exist_in_table",
+				"Checks that the row defined by the where-clause does not exist in the given table.\n\n"
+						+ "Example:\n"
+						+ "| Row Should Not Exist In Table | MySampleTable | Name='John Doe' |\n\n");
+
+		documentation = Collections.unmodifiableMap(map);
+	}
+
 	/**
 	 * Default-constructor
 	 */
@@ -161,8 +175,8 @@ public class DatabaseLibrary {
 	 * noted that the connection string is database-specific and must be valid
 	 * of course.
 	 * 
-	 * Example: 
-	 * | Connect To Database | com.mysql.jdbc.Driver | jdbc:mysql://my.host.name/myinstance | UserName | ThePassword |
+	 * Example: | Connect To Database | com.mysql.jdbc.Driver |
+	 * jdbc:mysql://my.host.name/myinstance | UserName | ThePassword |
 	 * 
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
@@ -184,8 +198,7 @@ public class DatabaseLibrary {
 	 * keyword will log any SQLWarnings that might have been occurred on the
 	 * connection.
 	 * 
-	 * Example: 
-	 * | Disconnect from Database |
+	 * Example: | Disconnect from Database |
 	 */
 	public void disconnectFromDatabase() throws SQLException {
 		System.out.println("SQL Warnings on this connection: "
@@ -200,8 +213,7 @@ public class DatabaseLibrary {
 	 * NOTE: Some database expect the table names to be written all in upper
 	 * case letters to be found.
 	 * 
-	 * Example: 
-	 * | Table Must Exist | MySampleTable |
+	 * Example: | Table Must Exist | MySampleTable |
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
@@ -225,8 +237,7 @@ public class DatabaseLibrary {
 	 * Checks that the given table has no rows. It is a convenience way of using
 	 * the "Table Must Contain Number Of Rows" with zero for the amount of rows.
 	 * 
-	 * Example: 
-	 * | Table Must Be Empty | MySampleTable |
+	 * Example: | Table Must Be Empty | MySampleTable |
 	 * 
 	 * @throws DatabaseLibraryException
 	 * @throws SQLException
@@ -242,8 +253,7 @@ public class DatabaseLibrary {
 	 * accidently execution of this keyword in a productive system will cause
 	 * heavy loss of data. There will be no rollback possible.
 	 * 
-	 * Example: 
-	 * | Delete All Rows From Table | MySampleTable |
+	 * Example: | Delete All Rows From Table | MySampleTable |
 	 * 
 	 * @throws SQLException
 	 */
@@ -263,8 +273,7 @@ public class DatabaseLibrary {
 	 * For the example this means that the table "MySampleTable" must contain
 	 * exactly 14 rows, otherwise the teststep will fail.
 	 * 
-	 * Example: 
-	 * | Table Must Contain Number Of Rows | MySampleTable | 14 |
+	 * Example: | Table Must Contain Number Of Rows | MySampleTable | 14 |
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
@@ -286,8 +295,8 @@ public class DatabaseLibrary {
 	 * amount of rows. For the example this means that the table "MySampleTable"
 	 * must contain 100 or more rows, otherwise the teststep will fail.
 	 * 
-	 * Example: 
-	 * | Table Must Contain More Than Number Of Rows | MySampleTable | 99 |
+	 * Example: | Table Must Contain More Than Number Of Rows | MySampleTable |
+	 * 99 |
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
@@ -310,8 +319,8 @@ public class DatabaseLibrary {
 	 * must contain anything between 0 and 1000 rows, otherwise the teststep
 	 * will fail.
 	 * 
-	 * Example: 
-	 * | Table Must Contain Less Than Number Of Rows | MySampleTable | 1001 |
+	 * Example: | Table Must Contain Less Than Number Of Rows | MySampleTable |
+	 * 1001 |
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
@@ -332,8 +341,8 @@ public class DatabaseLibrary {
 	 * This keyword checks that two given database tables have the same amount
 	 * of rows.
 	 * 
-	 * Example: 
-	 * | Tables Must Contain Same Amount Of Rows | MySampleTable | MyCompareTable |
+	 * Example: | Tables Must Contain Same Amount Of Rows | MySampleTable |
+	 * MyCompareTable |
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
@@ -364,8 +373,8 @@ public class DatabaseLibrary {
 	 * compared to the expected values. If all values match the teststep will
 	 * pass, otherwise it will fail.
 	 * 
-	 * Example: 
-	 * | Check Content for Row Identified by Rownum | Name,EMail | John Doe|john.doe@x-files | MySampleTable | 4 |
+	 * Example: | Check Content for Row Identified by Rownum | Name,EMail | John
+	 * Doe|john.doe@x-files | MySampleTable | 4 |
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
@@ -388,18 +397,18 @@ public class DatabaseLibrary {
 
 			long count = 0;
 			while (rs.next()) {
-	
+
 				count++;
 				if (count == rowNum) {
-	
+
 					for (int i = 0; i < columns.length; i++) {
 						String fieldValue = rs.getString(columns[i]);
 						System.out.println(columns[i] + " -> " + fieldValue);
-	
+
 						if (values[i].equals("(NULL)")) {
 							values[i] = "";
 						}
-	
+
 						if (!fieldValue.equals(values[i])) {
 							throw new DatabaseLibraryException("Value found: '"
 									+ fieldValue + "'. Expected: '" + values[i]
@@ -409,15 +418,17 @@ public class DatabaseLibrary {
 					break;
 				}
 			}
-	
+
 			// Rownum does not exist
 			if (count != rowNum) {
 				throw new DatabaseLibraryException(
-						"Given rownum does not exist for statement: " + sqlString);
+						"Given rownum does not exist for statement: "
+								+ sqlString);
 			}
-	
+
 		} finally {
-			// stmt.close() automatically takes care of its ResultSet, so no rs.close()
+			// stmt.close() automatically takes care of its ResultSet, so no
+			// rs.close()
 			stmt.close();
 		}
 	}
@@ -435,8 +446,8 @@ public class DatabaseLibrary {
 	 * If the where-clause will select more or less than exactly one row the
 	 * test will fail.
 	 * 
-	 * Example: 
-	 * | Check Content for Row Identified by WhereClause | Name,EMail | John Doe|john.doe@x-files | MySampleTable | Postings=14 |
+	 * Example: | Check Content for Row Identified by WhereClause | Name,EMail |
+	 * John Doe|john.doe@x-files | MySampleTable | Postings=14 |
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
@@ -455,20 +466,20 @@ public class DatabaseLibrary {
 		try {
 			stmt.executeQuery(sqlString);
 			ResultSet rs = (ResultSet) stmt.getResultSet();
-	
+
 			long count = 0;
 			while (rs.next()) {
 				count++;
 				if (count == 1) {
-	
+
 					for (int i = 0; i < columns.length; i++) {
 						String fieldValue = rs.getString(columns[i]);
 						System.out.println(columns[i] + " -> " + fieldValue);
-	
+
 						if (values[i].equals("(NULL)")) {
 							values[i] = "";
 						}
-	
+
 						if (!fieldValue.equals(values[i])) {
 							throw new DatabaseLibraryException("Value found: '"
 									+ fieldValue + "'. Expected: '" + values[i]
@@ -476,7 +487,7 @@ public class DatabaseLibrary {
 						}
 					}
 				}
-	
+
 				// Throw exception if more than one row is selected by the given
 				// "where-clause"
 				if (count > 1) {
@@ -485,16 +496,17 @@ public class DatabaseLibrary {
 									+ sqlString);
 				}
 			}
-	
+
 			// Throw exception if no row was fetched by given where-clause
 			if (count == 0) {
 				throw new DatabaseLibraryException(
 						"No row fetched by given where-clause for statement: "
 								+ sqlString);
 			}
-	
+
 		} finally {
-			// stmt.close() automatically takes care of its ResultSet, so no rs.close()
+			// stmt.close() automatically takes care of its ResultSet, so no
+			// rs.close()
 			stmt.close();
 		}
 	}
@@ -505,9 +517,10 @@ public class DatabaseLibrary {
 	 * less than exactly one row in that table this will result in an error for
 	 * this teststep. Otherwise the selected value will be returned.
 	 * 
-	 * Example: 
-	 * | ${VALUE}= | Read single Value from Table | MySampleTable | EMail | Name='John Doe' |
-	 * @throws DatabaseLibraryException 
+	 * Example: | ${VALUE}= | Read single Value from Table | MySampleTable |
+	 * EMail | Name='John Doe' |
+	 * 
+	 * @throws DatabaseLibraryException
 	 * 
 	 */
 	public String readSingleValueFromTable(String tableName, String columnName,
@@ -517,20 +530,23 @@ public class DatabaseLibrary {
 
 		String sql = "select " + columnName + " from " + tableName + " where "
 				+ whereClause;
-		Statement stmt = getConnection().createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		Statement stmt = getConnection().createStatement(
+				ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		try {
 			stmt.executeQuery(sql);
 			ResultSet rs = (ResultSet) stmt.getResultSet();
-			
-			if(rs.first()) {
+
+			if (rs.first()) {
 				ret = rs.getString(columnName);
 			}
-			
+
 			if (rs.next()) {
-				throw new DatabaseLibraryException("More than one value fetched for: " + sql);
+				throw new DatabaseLibraryException(
+						"More than one value fetched for: " + sql);
 			}
 		} finally {
-			// stmt.close() automatically takes care of its ResultSet, so no rs.close()
+			// stmt.close() automatically takes care of its ResultSet, so no
+			// rs.close()
 			stmt.close();
 		}
 
@@ -545,8 +561,8 @@ public class DatabaseLibrary {
 	 * TRANSACTION_REPEATABLE_READ, TRANSACTION_SERIALIZABLE or
 	 * TRANSACTION_NONE.
 	 * 
-	 * Example: 
-	 * | Transaction Isolation Level Must Be | TRANSACTION_READ_COMMITTED |
+	 * Example: | Transaction Isolation Level Must Be |
+	 * TRANSACTION_READ_COMMITTED |
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
@@ -571,8 +587,7 @@ public class DatabaseLibrary {
 	 * TRANSACTION_READ_COMMITTED, TRANSACTION_REPEATABLE_READ,
 	 * TRANSACTION_SERIALIZABLE or TRANSACTION_NONE.
 	 * 
-	 * Example: 
-	 * | ${TI_LEVEL}= | Get Transaction Isolation Level |
+	 * Example: | ${TI_LEVEL}= | Get Transaction Isolation Level |
 	 * 
 	 * @throws SQLException
 	 */
@@ -617,8 +632,8 @@ public class DatabaseLibrary {
 	 * NOTE: Some database expect the table names to be written all in upper
 	 * case letters to be found.
 	 * 
-	 * Example: 
-	 * | Check Primary Key Columns For Table | MySampleTable | Id,Name |
+	 * Example: | Check Primary Key Columns For Table | MySampleTable | Id,Name
+	 * |
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
@@ -645,8 +660,7 @@ public class DatabaseLibrary {
 	 * NOTE: Some database expect the table names to be written all in upper
 	 * case letters to be found.
 	 * 
-	 * Example: 
-	 * | ${KEYS}= | Get Primary Key Columns For Table | MySampleTable |
+	 * Example: | ${KEYS}= | Get Primary Key Columns For Table | MySampleTable |
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
@@ -665,7 +679,7 @@ public class DatabaseLibrary {
 		} finally {
 			rs.close();
 		}
-		
+
 		// Remove the last ","
 		if (ret.length() > 0) {
 			ret = ret.substring(0, ret.length() - 1);
@@ -682,8 +696,7 @@ public class DatabaseLibrary {
 	 * NOTE: Use this method with care as you might cause damage to your
 	 * database, especially when using this in a productive environment.
 	 * 
-	 * Example: 
-	 * | Execute SQL | CREATE TABLE MyTable (Num INTEGER) |
+	 * Example: | Execute SQL | CREATE TABLE MyTable (Num INTEGER) |
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
@@ -716,8 +729,7 @@ public class DatabaseLibrary {
 	 * NOTE: Use this method with care as you might cause damage to your
 	 * database, especially when using this in a productive environment.
 	 * 
-	 * Example: 
-	 * | Execute SQL from File | myFile.sql |
+	 * Example: | Execute SQL from File | myFile.sql |
 	 * 
 	 * @throws IOExcetion
 	 * @throws SQLException
@@ -788,8 +800,7 @@ public class DatabaseLibrary {
 	 * NOTE: Use this method with care as you might cause damage to your
 	 * database, especially when using this in a productive environment.
 	 * 
-	 * Example: 
-	 * | Execute SQL from File | myFile.sql |
+	 * Example: | Execute SQL from File | myFile.sql |
 	 * 
 	 * @throws IOExcetion
 	 * @throws SQLException
@@ -848,8 +859,8 @@ public class DatabaseLibrary {
 	 * exactly 2 rows matching the given WHERE, otherwise the teststep will
 	 * fail.
 	 * 
-	 * Example: 
-	 * | Verify Number Of Rows Matching Where | MySampleTable | email=x@y.net | 2 |
+	 * Example: | Verify Number Of Rows Matching Where | MySampleTable |
+	 * email=x@y.net | 2 |
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
@@ -867,60 +878,62 @@ public class DatabaseLibrary {
 	}
 
 	/**
-	 * This keyword can be used to check the inexistence of content inside 
-	 * a specific row in a database table defined by a where-clause.
-	 * This can be used to validate an exclusion of specific data from a table.
-	 *  
-	 * Example:
-	 * | Row Should Not Exist In Table | MySampleTable | Name='John Doe' |
+	 * This keyword can be used to check the inexistence of content inside a
+	 * specific row in a database table defined by a where-clause. This can be
+	 * used to validate an exclusion of specific data from a table.
+	 * 
+	 * Example: | Row Should Not Exist In Table | MySampleTable | Name='John
+	 * Doe' |
 	 * 
 	 * This keyword was introduced in version 1.1.
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
 	 */
-	public void rowShouldNotExistInTable(String tableName, String whereClause) 
-		throws SQLException, DatabaseLibraryException {
+	public void rowShouldNotExistInTable(String tableName, String whereClause)
+			throws SQLException, DatabaseLibraryException {
 
 		String sql = "select * from " + tableName + " where " + whereClause;
 		Statement stmt = getConnection().createStatement();
 		try {
 			stmt.executeQuery(sql);
 			ResultSet rs = (ResultSet) stmt.getResultSet();
-			if(rs.next() == true) {
-				throw new DatabaseLibraryException("Row exists (but should not) for where-clause: " 
-						+ whereClause + " in table: " + tableName);
+			if (rs.next() == true) {
+				throw new DatabaseLibraryException(
+						"Row exists (but should not) for where-clause: "
+								+ whereClause + " in table: " + tableName);
 			}
 		} finally {
-			// stmt.close() automatically takes care of its ResultSet, so no rs.close()
+			// stmt.close() automatically takes care of its ResultSet, so no
+			// rs.close()
 			stmt.close();
 		}
 	}
 
 	/**
-	 * Executes the given SQL without any further modifications and
-	 * stores the result in a file.  The SQL query must be valid for
-	 * the database that is used. The main purpose of this keyword
-	 * is to generate expected result sets for use with keyword
-	 * compareQueryResultToFile
+	 * Executes the given SQL without any further modifications and stores the
+	 * result in a file. The SQL query must be valid for the database that is
+	 * used. The main purpose of this keyword is to generate expected result
+	 * sets for use with keyword compareQueryResultToFile
 	 * 
-	 * Example: 
-	 * | Store Query Result To File | Select phone, email from addresses where last_name = 'Johnson' | query_result.txt |
+	 * Example: | Store Query Result To File | Select phone, email from
+	 * addresses where last_name = 'Johnson' | query_result.txt |
 	 * 
 	 * @throws SQLException
-	 * @throws IOException 
+	 * @throws IOException
 	 * @throws DatabaseLibraryException
 	 */
-	public void storeQueryResultToFile(String sqlString, String fileName) throws SQLException, IOException {
+	public void storeQueryResultToFile(String sqlString, String fileName)
+			throws SQLException, IOException {
 
 		Statement stmt = getConnection().createStatement();
 		try {
 			stmt.execute(sqlString);
 			ResultSet rs = (ResultSet) stmt.getResultSet();
 			ResultSetMetaData rsmd = rs.getMetaData();
-		    int numberOfColumns = rsmd.getColumnCount();
-		    FileWriter fstream = new FileWriter(fileName);
-		    BufferedWriter out = new BufferedWriter(fstream);	    
+			int numberOfColumns = rsmd.getColumnCount();
+			FileWriter fstream = new FileWriter(fileName);
+			BufferedWriter out = new BufferedWriter(fstream);
 			while (rs.next()) {
 				for (int i = 1; i <= numberOfColumns; i++) {
 					rs.getString(i);
@@ -930,48 +943,49 @@ public class DatabaseLibrary {
 			}
 			out.close();
 		} finally {
-			// stmt.close() automatically takes care of its ResultSet, so no rs.close()
+			// stmt.close() automatically takes care of its ResultSet, so no
+			// rs.close()
 			stmt.close();
 		}
 	}
 
 	/**
-	 * Executes the given SQL compares the result to expected
-	 * results stored in a file.  Results are stored as strings
-	 * separated with pipes ('|') with a pipe following the last 
-	 * column.  Rows are separated with a newline.
+	 * Executes the given SQL compares the result to expected results stored in
+	 * a file. Results are stored as strings separated with pipes ('|') with a
+	 * pipe following the last column. Rows are separated with a newline.
 	 * 
-	 * To ensure compares work correctly
-	 * The SQL query should
-	 * a) specify an order
-	 * b) convert non-string fields (especially dates) to a specific format
+	 * To ensure compares work correctly The SQL query should a) specify an
+	 * order b) convert non-string fields (especially dates) to a specific
+	 * format
 	 * 
 	 * storeQueryResultToFile can be used to generate expected result files
 	 * 
-	 * Example: 
-	 * | Compare Query Result To File | Select phone, email from addresses where last_name = 'Johnson' | query_result.txt |
+	 * Example: | Compare Query Result To File | Select phone, email from
+	 * addresses where last_name = 'Johnson' | query_result.txt |
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseLibraryException
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
 	 */
-	public void compareQueryResultToFile(String sqlString, String fileName) throws SQLException, DatabaseLibraryException, FileNotFoundException {
-	
+	public void compareQueryResultToFile(String sqlString, String fileName)
+			throws SQLException, DatabaseLibraryException,
+			FileNotFoundException {
+
 		Statement stmt = getConnection().createStatement();
-	    int numDiffs = 0;
-	    int maxDiffs = 10;
-	    String diffs = "";
-	    try {
+		int numDiffs = 0;
+		int maxDiffs = 10;
+		String diffs = "";
+		try {
 			stmt.execute(sqlString);
 			ResultSet rs = (ResultSet) stmt.getResultSet();
 			ResultSetMetaData rsmd = rs.getMetaData();
-		    int numberOfColumns = rsmd.getColumnCount();
-		    FileReader fr = new FileReader(fileName); 
-		    BufferedReader br = new BufferedReader(fr);
-		    String actRow;
-		    String expRow;
-	
-		    int row = 0;
+			int numberOfColumns = rsmd.getColumnCount();
+			FileReader fr = new FileReader(fileName);
+			BufferedReader br = new BufferedReader(fr);
+			String actRow;
+			String expRow;
+
+			int row = 0;
 			while (rs.next() && (numDiffs < maxDiffs)) {
 				actRow = "";
 				row++;
@@ -981,7 +995,8 @@ public class DatabaseLibrary {
 				expRow = br.readLine();
 				if (!actRow.equals(expRow)) {
 					numDiffs++;
-					diffs += "Row " + row + " does not match:\nexp: " + expRow + "\nact: " +actRow + "\n"; 
+					diffs += "Row " + row + " does not match:\nexp: " + expRow
+							+ "\nact: " + actRow + "\n";
 				}
 			}
 			if (br.ready() && numDiffs < maxDiffs) {
@@ -995,13 +1010,13 @@ public class DatabaseLibrary {
 			numDiffs++;
 			diffs += "Fewer rows in expected file than in query result\n";
 		} finally {
-			// stmt.close() automatically takes care of its ResultSet, so no rs.close()
+			// stmt.close() automatically takes care of its ResultSet, so no
+			// rs.close()
 			stmt.close();
-			if (numDiffs > 0) throw new DatabaseLibraryException(diffs);
+			if (numDiffs > 0)
+				throw new DatabaseLibraryException(diffs);
 		}
 	}
-
-	
 
 	private void setConnection(Connection connection) {
 		this.connection = connection;
@@ -1009,22 +1024,24 @@ public class DatabaseLibrary {
 
 	private Connection getConnection() {
 		if (connection == null) {
-			throw new IllegalStateException("No connection open. Did you forget to run 'Connect To Database' before?");
+			throw new IllegalStateException(
+					"No connection open. Did you forget to run 'Connect To Database' before?");
 		}
 		return connection;
 	}
-
 
 	private long getNumberOfRows(String tableName) throws SQLException {
 		return getNumberOfRows(tableName, Long.MAX_VALUE);
 	}
 
-	private long getNumberOfRows(String tableName, long limit) throws SQLException {
+	private long getNumberOfRows(String tableName, long limit)
+			throws SQLException {
 		return getNumberOfRows(tableName, null, limit);
 	}
-	
-	/* 
-	 * @param limit Limit is used to cut off counting in case count(*) is not supported
+
+	/*
+	 * @param limit Limit is used to cut off counting in case count(*) is not
+	 * supported
 	 */
 	private long getNumberOfRows(String tableName, String where, long limit)
 			throws SQLException {
@@ -1037,7 +1054,7 @@ public class DatabaseLibrary {
 		// so that this might not be too bad.
 		long num = -1;
 		try {
-			String sql = "select count(*) from " + tableName; 
+			String sql = "select count(*) from " + tableName;
 			if (where != null) {
 				sql = sql + " where " + where;
 			}
@@ -1048,7 +1065,8 @@ public class DatabaseLibrary {
 				rs.next();
 				num = rs.getLong("count(*)");
 			} finally {
-				// stmt.close() automatically takes care of its ResultSet, so no rs.close()
+				// stmt.close() automatically takes care of its ResultSet, so no
+				// rs.close()
 				stmt.close();
 			}
 		} catch (SQLException e) {
@@ -1065,7 +1083,8 @@ public class DatabaseLibrary {
 					num++;
 				}
 			} finally {
-				// stmt.close() automatically takes care of its ResultSet, so no rs.close()
+				// stmt.close() automatically takes care of its ResultSet, so no
+				// rs.close()
 				stmt.close();
 			}
 		}
